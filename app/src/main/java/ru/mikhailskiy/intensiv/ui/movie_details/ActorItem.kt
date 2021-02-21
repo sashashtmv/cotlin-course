@@ -1,23 +1,22 @@
-package ru.mikhailskiy.intensiv.ui.watchlist
+package ru.mikhailskiy.intensiv.ui.movie_details
 
 import com.squareup.picasso.Picasso
 import com.xwray.groupie.kotlinandroidextensions.GroupieViewHolder
 import com.xwray.groupie.kotlinandroidextensions.Item
-import kotlinx.android.synthetic.main.item_with_text.*
-import ru.mikhailskiy.intensiv.R
-import ru.mikhailskiy.intensiv.data.Movie
+import kotlinx.android.synthetic.main.item_with_actor.*
 
-class MoviePreviewItem(
-    private val content: Movie,
-    private val onClick: (movie: Movie) -> Unit
+import ru.mikhailskiy.intensiv.R
+import ru.mikhailskiy.intensiv.data.Actor
+
+class ActorItem(
+    private val content: Actor
 ) : Item() {
 
-    override fun getLayout() = R.layout.item_small
+    override fun getLayout() = R.layout.item_with_actor
 
     override fun bind(viewHolder: GroupieViewHolder, position: Int) {
-        viewHolder.image_preview.setOnClickListener {
-            onClick.invoke(content)
-        }
+        viewHolder.description.text = content.name
+
         // TODO Получать из модели
         Picasso.get()
             .load(content.imageUrl)

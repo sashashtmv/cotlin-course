@@ -1,13 +1,240 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/blueDark"
     tools:context="ru.mikhailskiy.intensiv.ui.movie_details.MovieDetailsFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/image_main"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+        android:layout_height="0dp"
+        android:scaleType="fitXY"
+        app:layout_constraintBottom_toTopOf="@+id/guideline0"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CornerSize4Percent"
+        tools:background="@color/white"
+        tools:ignore="MissingConstraints"
+        tools:src="@drawable/ic_avatar" />
 
-</FrameLayout>
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline0"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.4" />
+
+    <ImageView
+        android:id="@+id/back_arrow"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginLeft="@dimen/material_margin_normal"
+        android:layout_marginTop="@dimen/material_margin_normal"
+        android:src="@drawable/ic_back_arrow"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/like"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="@dimen/material_margin_normal"
+        android:layout_marginRight="@dimen/material_margin_normal"
+        android:src="@drawable/like"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/name_tv_show"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/material_margin_normal"
+        android:layout_marginTop="@dimen/material_margin_normal"
+        android:text="Spider Man"
+        android:textAllCaps="true"
+        android:textColor="@color/white"
+        android:textSize="18sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/guideline0" />
+
+    <ImageView
+        android:id="@+id/image_quality"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginRight="@dimen/material_margin_normal"
+        android:alpha="0.3"
+        android:src="@drawable/quality_video"
+        app:layout_constraintBottom_toBottomOf="@+id/name_tv_show"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/name_tv_show" />
+
+    <TextView
+        android:id="@+id/tv_show"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/material_margin_normal"
+        android:layout_marginTop="@dimen/material_margin_normal"
+        android:background="@drawable/round_background"
+        android:paddingLeft="@dimen/close_width"
+        android:paddingTop="@dimen/material_margin_small"
+        android:paddingRight="@dimen/close_width"
+        android:paddingBottom="@dimen/material_margin_small"
+        android:text="@string/show"
+        android:textColor="@color/white"
+        android:textSize="18sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/name_tv_show" />
+
+    <androidx.appcompat.widget.AppCompatRatingBar
+        android:id="@+id/movie_rating"
+        style="@style/Base.Widget.AppCompat.RatingBar.Small"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/material_margin_super_small"
+        android:layout_marginRight="@dimen/material_margin_normal"
+        android:isIndicator="true"
+        android:numStars="5"
+        android:progressBackgroundTint="@color/colorControlNormal"
+        android:stepSize="0.5"
+        app:layout_constraintBottom_toBottomOf="@+id/tv_show"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/tv_show"
+        tools:ignore="MissingConstraints"
+        tools:rating="5" />
+
+    <ScrollView
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:fillViewport="true"
+        app:layout_constraintTop_toBottomOf="@+id/tv_show">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tv_describe"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/material_margin_normal"
+                android:layout_marginTop="@dimen/material_margin_normal"
+                android:layout_marginRight="@dimen/material_margin_normal"
+                android:alpha="0.5"
+                android:text="@string/describe"
+                android:textColor="@color/white"
+                android:textSize="18sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/name_tv_show" />
+
+            <include layout="@layout/item_card_actors"/>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/tv_studio"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/material_margin_normal"
+                    android:layout_marginTop="@dimen/material_margin_normal"
+                    android:layout_marginRight="@dimen/material_margin_normal"
+                    android:text="@string/tv_studio"
+                    android:textColor="@color/white"
+                    android:textSize="18sp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/name_tv_show" />
+
+                <TextView
+                    android:id="@+id/tv_describe_studio"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/material_margin_normal"
+                    android:layout_marginTop="@dimen/material_margin_normal"
+                    android:layout_marginRight="@dimen/material_margin_normal"
+                    android:alpha="0.5"
+                    android:text="Warner Bros."
+                    android:textColor="@color/white"
+                    android:textSize="18sp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/name_tv_show" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/tv_genre"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/material_margin_normal"
+                    android:layout_marginTop="@dimen/material_margin_normal"
+                    android:layout_marginRight="@dimen/material_margin_normal"
+                    android:text="@string/tv_genre"
+                    android:textColor="@color/white"
+                    android:textSize="18sp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/name_tv_show" />
+
+                <TextView
+                    android:id="@+id/tv_describe_genre"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/material_margin_normal"
+                    android:layout_marginTop="@dimen/material_margin_normal"
+                    android:layout_marginRight="@dimen/material_margin_normal"
+                    android:alpha="0.5"
+                    android:text="Action, Adventure, Fantasy"
+                    android:textColor="@color/white"
+                    android:textSize="18sp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/name_tv_show" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/material_margin_normal"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/tv_year"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/material_margin_normal"
+                    android:layout_marginTop="@dimen/material_margin_normal"
+                    android:layout_marginRight="@dimen/material_margin_normal"
+                    android:text="@string/tv_year"
+                    android:textColor="@color/white"
+                    android:textSize="18sp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/name_tv_show" />
+
+                <TextView
+                    android:id="@+id/tv_describe_year"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/material_margin_normal"
+                    android:layout_marginTop="@dimen/material_margin_normal"
+                    android:layout_marginRight="@dimen/material_margin_normal"
+                    android:alpha="0.5"
+                    android:text="2018"
+                    android:textColor="@color/white"
+                    android:textSize="18sp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/name_tv_show" />
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
