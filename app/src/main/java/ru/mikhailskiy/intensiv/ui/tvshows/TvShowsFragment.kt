@@ -47,10 +47,10 @@ class TvShowsFragment : Fragment() {
     }
 
     private fun getTvShowMovies() {
-        val getUpComingMovies =
+        val getTvShowMovies =
             MovieApiClient.apiClient.getTvShowMovies(MainActivity.API_KEY, "ru")
 
-        getUpComingMovies.enqueue(object : Callback<MoviesResponse> {
+        getTvShowMovies.enqueue(object : Callback<MoviesResponse> {
 
             override fun onFailure(call: Call<MoviesResponse>, error: Throwable) {
                 // Логируем ошибку
@@ -72,10 +72,10 @@ class TvShowsFragment : Fragment() {
     }
 
     private fun updateAdapter(movies: List<Movie>) {
-        // Используя Мок-репозиторий получаем фэйковый список сериалов
         val moviesList = listOf(
             CardContainerTvShows(
                 movies.map {
+                    it.title = it.name
                     TvShowsItem(it) { movie ->
                         openMovieDetails(
                             movie
@@ -100,18 +100,14 @@ class TvShowsFragment : Fragment() {
         }
 
         val bundle = Bundle()
-        bundle.putString("title", movie.title)
+        movie.id?.let { bundle.putInt("id", it) }
+        "tv".let { bundle.putString("type_detail", it) }
         findNavController().navigate(R.id.movie_details_fragment, bundle, options)
     }
 
     override fun onStop() {
         super.onStop()
         adapter.clear()
-    }
-
-    override fun onResume() {
-        super.onResume()
-//        updateAdapter()
     }
 
 }

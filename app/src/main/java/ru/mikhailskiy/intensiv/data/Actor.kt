@@ -1,6 +1,6 @@
 package ru.mikhailskiy.intensiv.data
 
-class Actor(
+data class Actor(
     var profile_path: String ="",
     var name: String = ""
 ) {

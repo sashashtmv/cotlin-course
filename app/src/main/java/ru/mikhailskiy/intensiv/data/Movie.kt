@@ -1,7 +1,8 @@
 package ru.mikhailskiy.intensiv.data
 
-class Movie(
+data class Movie(
     var title: String? = "",
+    var name: String? = "",
     var backdrop_path: String? = "",
     var id: Int?,
     var voteAverage: Double = 0.0

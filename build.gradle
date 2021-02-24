@@ -46,4 +46,9 @@ ext {
     timberVersion = '4.7.1'
 
     groupieVersion ='2.8.0'
+    retrofitVersion = '2.9.0'
+    adapterRxJavaVersion = '2.7.1'
+    loginIntercepterVersion = '4.7.2'
+    rxAndroidVersion = '2.1.1'
+    rxJavaVersion = '2.2.16'
 }

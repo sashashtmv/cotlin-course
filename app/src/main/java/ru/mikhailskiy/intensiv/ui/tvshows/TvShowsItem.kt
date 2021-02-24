@@ -22,7 +22,6 @@ class TvShowsItem(
             onClick.invoke(content)
         }
 
-        // TODO Получать из модели
         Picasso.get()
             .load(content.imageUrl)
             .into(viewHolder.image_preview)

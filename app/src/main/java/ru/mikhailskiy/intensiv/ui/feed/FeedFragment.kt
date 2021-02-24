@@ -192,6 +192,7 @@ class FeedFragment : Fragment() {
 
         val bundle = Bundle()
         movie.id?.let { bundle.putInt("id", it) }
+        "move".let { bundle.putString("type_detail", it) }
         findNavController().navigate(R.id.movie_details_fragment, bundle, options)
     }
 

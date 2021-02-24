@@ -133,7 +133,19 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/name_tv_show" />
 
-            <include layout="@layout/item_card_actors"/>
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/item_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:layout_marginTop="@dimen/material_margin_normal"
+                android:layout_marginEnd="12dp"
+                android:orientation="horizontal"
+                android:visibility="visible"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                tools:ignore="RtlSymmetry"
+                tools:itemCount="4"
+                tools:listitem="@layout/item_with_actor" />
 
             <LinearLayout
                 android:layout_width="wrap_content"

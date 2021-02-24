@@ -20,7 +20,11 @@ interface MovieApiInterface {
     fun getTvShowMovies(@Query("api_key") apiKey: String, @Query("language") language: String): Call<MoviesResponse>
     @GET("movie/{movie_id}")
     fun getDetailMovie( @Path("movie_id") movie_id: Int, @Query("api_key") apiKey: String, @Query("language") language: String): Call<DetailMovieResponse>
+    @GET("tv/{tv_id}")
+    fun getDetailTvMovie( @Path("tv_id") tv_id: Int, @Query("api_key") apiKey: String, @Query("language") language: String): Call<DetailMovieResponse>
     @GET("movie/{movie_id}/credits")
     fun getDetailActors( @Path("movie_id") movie_id: Int, @Query("api_key") apiKey: String, @Query("language") language: String): Call<DetailActorResponse>
+    @GET("tv/{tv_id}/credits")
+    fun getDetailTvActors( @Path("tv_id") tv_id: Int, @Query("api_key") apiKey: String, @Query("language") language: String): Call<DetailActorResponse>
 
 }

@@ -5,6 +5,7 @@ import com.google.gson.annotations.SerializedName
 data class DetailMovieResponse (
     var page: Int,
     var original_title: String,
+    var name: String = "",
     var overview: String,
     var poster_path: String,
     var release_date: String,

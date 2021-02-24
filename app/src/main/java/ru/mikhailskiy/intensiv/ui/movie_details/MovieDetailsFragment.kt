@@ -6,11 +6,9 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.squareup.picasso.Picasso
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.kotlinandroidextensions.GroupieViewHolder
-import kotlinx.android.synthetic.main.item_card_actors.*
 import kotlinx.android.synthetic.main.movie_details_fragment.*
 import retrofit2.Call
 import retrofit2.Callback
@@ -25,6 +23,7 @@ import ru.mikhailskiy.intensiv.network.MovieApiClient
 class MovieDetailsFragment : Fragment() {
 
     private var idMove: Int = 0
+    private var typeDetail: String = ""
     private val adapter by lazy {
         GroupAdapter<GroupieViewHolder>()
     }
@@ -37,6 +36,9 @@ class MovieDetailsFragment : Fragment() {
         arguments?.getInt("id")?.let {
             idMove = it
         }
+        arguments?.getString("type_detail")?.let {
+            typeDetail = it
+        }
         setHasOptionsMenu(true)
         return inflater.inflate(R.layout.movie_details_fragment, container, false)
     }
@@ -45,7 +47,7 @@ class MovieDetailsFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         // Добавляем recyclerView
-        item_container.layoutManager = LinearLayoutManager(context)
+//        item_container.layoutManager = LinearLayoutManager(context)
         item_container.adapter = adapter.apply { addAll(listOf()) }
         getDetailMovie()
         getDetailActor()
@@ -53,8 +55,10 @@ class MovieDetailsFragment : Fragment() {
     }
 
     private fun getDetailMovie() {
-        val getDetailMovie =
+        var getDetailMovie =
             MovieApiClient.apiClient.getDetailMovie(idMove, MainActivity.API_KEY, "ru")
+        if(typeDetail == "tv")
+            getDetailMovie = MovieApiClient.apiClient.getDetailTvMovie(idMove, MainActivity.API_KEY, "ru")
 
         getDetailMovie.enqueue(object : Callback<DetailMovieResponse> {
 
@@ -69,6 +73,7 @@ class MovieDetailsFragment : Fragment() {
                 val date = response.body()
                 // Передаем результат в adapter и отображаем элементы
                 if (date != null) {
+                    if(date.original_title == null) date.original_title = date.name
                     name_tv_show.text = date.original_title
                     movie_rating.rating = date.vote_average.div(2).toFloat()
                     tv_describe.text = date.overview
@@ -84,8 +89,9 @@ class MovieDetailsFragment : Fragment() {
     }
 
     private fun getDetailActor() {
-        val getDetailActor =
-            MovieApiClient.apiClient.getDetailActors(idMove, MainActivity.API_KEY, "ru")
+        var getDetailActor = MovieApiClient.apiClient.getDetailActors(idMove, MainActivity.API_KEY, "ru")
+        if (typeDetail == "tv")
+            getDetailActor = MovieApiClient.apiClient.getDetailTvActors(idMove, MainActivity.API_KEY, "ru")
 
         getDetailActor.enqueue(object : Callback<DetailActorResponse> {
 
@@ -110,13 +116,10 @@ class MovieDetailsFragment : Fragment() {
 
 
     private fun updateAdapter(actors: List<Actor>) {
-        val actorsList = listOf(
-            CardContainerDetailMove(
+        val actorsList =
                 actors.map {
                     ActorItem(it)
-                }.toList()
-            )
-        )
+                }
 
         adapter.apply { addAll(actorsList) }
     }

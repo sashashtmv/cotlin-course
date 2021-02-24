@@ -17,7 +17,6 @@ class ActorItem(
     override fun bind(viewHolder: GroupieViewHolder, position: Int) {
         viewHolder.description.text = content.name
 
-        // TODO Получать из модели
         Picasso.get()
             .load(content.imageUrl)
             .into(viewHolder.image_preview)
