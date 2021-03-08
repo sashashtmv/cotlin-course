@@ -3,27 +3,39 @@ package ru.mikhailskiy.intensiv.ui.feed
 import android.os.Bundle
 import android.util.Log
 import android.view.*
+import android.widget.ImageView
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.navOptions
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.kotlinandroidextensions.GroupieViewHolder
+import io.reactivex.Observable
+import io.reactivex.ObservableOnSubscribe
+import io.reactivex.Single
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.functions.Function3
+import io.reactivex.functions.Predicate
+import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.feed_fragment.*
 import kotlinx.android.synthetic.main.feed_header.*
 import kotlinx.android.synthetic.main.search_toolbar.view.*
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 import ru.mikhailskiy.intensiv.MainActivity
+import ru.mikhailskiy.intensiv.MainActivity.Companion.TAG
 import ru.mikhailskiy.intensiv.R
 import ru.mikhailskiy.intensiv.data.Movie
 import ru.mikhailskiy.intensiv.data.MoviesResponse
 import ru.mikhailskiy.intensiv.network.MovieApiClient
 import ru.mikhailskiy.intensiv.ui.afterTextChanged
+import ru.mikhailskiy.intensiv.ui.utils.showLoadingIndicator
 import timber.log.Timber
+import java.util.*
+import java.util.concurrent.TimeUnit
+
 
 class FeedFragment : Fragment() {
+    private var loadingIndicator: ImageView? = null
+    private var searchTerm: String = ""
 
     private val adapter by lazy {
         GroupAdapter<GroupieViewHolder>()
@@ -44,140 +56,77 @@ class FeedFragment : Fragment() {
         // Добавляем recyclerView
         movies_recycler_view.layoutManager = LinearLayoutManager(context)
         movies_recycler_view.adapter = adapter.apply { addAll(listOf()) }
+        loadingIndicator = view.findViewById(R.id.loading_indicator)
 
-        search_toolbar.search_edit_text.afterTextChanged {
-            Timber.d(it.toString())
-            if (it.toString().length > 3) {
-                openSearch(it.toString())
+        Observable.create(ObservableOnSubscribe<String>() {emiter ->
+            search_toolbar.search_edit_text.afterTextChanged {
+                emiter.onNext(it.toString())
+
             }
-        }
-        getNowPlayingMovies()
-        getPopularMovies()
-        getUpComingMovies()
+        })
+            .filter(Predicate<String>() {
+                it.trim()
+                it.length >= 3
+            })
+            .debounce(500, TimeUnit.MILLISECONDS)
+            .distinctUntilChanged()
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({ result ->
+                searchTerm = result
+                openSearch()
+            }, { t: Throwable? -> Timber.w(t, "Failed to get search results") })
 
-    }
-
-    private fun getNowPlayingMovies() {
+        showLoadingIndicator(true,loadingIndicator ?: return)
         val getNowPlayingMovies =
             MovieApiClient.apiClient.getNowPlayingMovies(MainActivity.API_KEY, "ru")
-
-        getNowPlayingMovies.enqueue(object : Callback<MoviesResponse> {
-
-            override fun onFailure(call: Call<MoviesResponse>, error: Throwable) {
-                // Логируем ошибку
-                Log.e(MainActivity.TAG, error.toString())
-            }
-
-            override fun onResponse(
-                call: Call<MoviesResponse>,
-                response: Response<MoviesResponse>
-            ) {
-
-                val movies = response.body()?.results
-                // Передаем результат в adapter и отображаем элементы
-                if (movies != null) {
-                    updateAdapter(0, movies)
-                }
-            }
-        })
-    }
-
-    private fun getPopularMovies() {
         val getPopularMovies =
             MovieApiClient.apiClient.getPopularMovies(MainActivity.API_KEY, "ru")
-
-        getPopularMovies.enqueue(object : Callback<MoviesResponse> {
-
-            override fun onFailure(call: Call<MoviesResponse>, error: Throwable) {
-                // Логируем ошибку
-                Log.e(MainActivity.TAG, error.toString())
-            }
-
-            override fun onResponse(
-                call: Call<MoviesResponse>,
-                response: Response<MoviesResponse>
-            ) {
-
-                val movies = response.body()?.results
-                // Передаем результат в adapter и отображаем элементы
-                if (movies != null) {
-                    updateAdapter(1, movies)
-                }
-            }
-        })
-    }
-
-    private fun getUpComingMovies() {
         val getUpComingMovies =
             MovieApiClient.apiClient.getUpComingMovies(MainActivity.API_KEY, "ru")
 
-        getUpComingMovies.enqueue(object : Callback<MoviesResponse> {
-
-            override fun onFailure(call: Call<MoviesResponse>, error: Throwable) {
-                // Логируем ошибку
-                Log.e(MainActivity.TAG, error.toString())
+        Single.zip(
+            getNowPlayingMovies,
+            getPopularMovies,
+            getUpComingMovies,
+            Function3<MoviesResponse, MoviesResponse, MoviesResponse, HashMap<Int, MoviesResponse>> { nowPlaying, popular, upComing ->
+                return@Function3 hashMapOf(0 to nowPlaying, 1 to popular, 2 to upComing)
             }
+        )
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(
+                { it ->
+                    it.map { element ->
+                        updateAdapter(element.key, element.value.results)
 
-            override fun onResponse(
-                call: Call<MoviesResponse>,
-                response: Response<MoviesResponse>
-            ) {
-
-                val movies = response.body()?.results
-                // Передаем результат в adapter и отображаем элементы
-                if (movies != null) {
-                    updateAdapter(2, movies)
+                    }
+                    showLoadingIndicator(false, loadingIndicator ?: return@subscribe)
+                }, { error ->
+                    Log.e(TAG, error.toString())
+                    showLoadingIndicator(false, loadingIndicator ?: return@subscribe)
                 }
-            }
-        })
+            )
     }
 
     private fun updateAdapter(idAdapter: Int, movies: List<Movie>) {
-        when (idAdapter) {
-            0 -> {
-                val moviesList = listOf(
-                    MainCardContainer(
-                        R.string.recommended,
-                        movies.map {
-                            MovieItem(it) { movie ->
-                                openMovieDetails(
-                                    movie
-                                )
-                            }
-                        }.toList()
-                    )
-                )
-                adapter.apply { addAll(moviesList) }
-            }
-            1 -> {
-                val popularMoviesList = listOf(
-                    MainCardContainer(
-                        R.string.popular,
-                        movies.map {
-                            MovieItem(it) { movie ->
-                                openMovieDetails(movie)
-                            }
-                        }.toList()
-                    )
-                )
-
-                adapter.apply { addAll(popularMoviesList) }
-            }
-            2 -> {
-                val newMoviesList = listOf(
-                    MainCardContainer(
-                        R.string.upcoming,
-                        movies.map {
-                            MovieItem(it) { movie ->
-                                openMovieDetails(movie)
-                            }
-                        }.toList()
-                    )
-                )
-
-                adapter.apply { addAll(newMoviesList) }
-            }
-        }
+        var titleId: Int = 0
+        if (idAdapter == 0) titleId = R.string.recommended
+        if (idAdapter == 1) titleId = R.string.popular
+        if (idAdapter == 2) titleId = R.string.upcoming
+        val moviesList = listOf(
+            MainCardContainer(
+                titleId,
+                movies.map {
+                    MovieItem(it) { movie ->
+                        openMovieDetails(
+                            movie
+                        )
+                    }
+                }.toList()
+            )
+        )
+        adapter.addAll(moviesList)
     }
 
     private fun openMovieDetails(movie: Movie) {
@@ -192,11 +141,11 @@ class FeedFragment : Fragment() {
 
         val bundle = Bundle()
         movie.id?.let { bundle.putInt("id", it) }
-        "move".let { bundle.putString("type_detail", it) }
+        bundle.putString("type_detail", "move")
         findNavController().navigate(R.id.movie_details_fragment, bundle, options)
     }
 
-    private fun openSearch(searchText: String) {
+    private fun openSearch() {
         val options = navOptions {
             anim {
                 enter = R.anim.slide_in_right
@@ -207,7 +156,7 @@ class FeedFragment : Fragment() {
         }
 
         val bundle = Bundle()
-        bundle.putString("search", searchText)
+        bundle.putString("search", searchTerm)
         findNavController().navigate(R.id.search_dest, bundle, options)
     }
 
@@ -216,7 +165,6 @@ class FeedFragment : Fragment() {
         search_toolbar.clear()
         adapter.clear()
     }
-
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.main_menu, menu)
